@@ -7,12 +7,13 @@ import AddUserDialog from "@/src/components/AddUserDialog";
 import UserRow from "@/components/UserRow";
 import type { User } from "@/types/user";
 import { api } from "@/lib/api";
+import { useUserManagementStore } from "@/store/useUserManagementStore";
 
 const ITEMS_PER_PAGE = 5;
 
-const fetchUsers = async (): Promise<User[]> => {
+const fetchUsers = async (deletedIds: number[]): Promise<User[]> => {
   const res = await api.get("/users");
-  return res.data;
+  return res.data.filter((user: User) => !deletedIds.includes(user.id));
 };
 
 export const dynamic = "force-dynamic";
@@ -78,19 +79,20 @@ const CheckIcon = ({
 );
 
 const UserTable: React.FC = () => {
+  const deletedIds = useUserManagementStore((state) => state.deletedUserIds);
   const [searchTerm, setSearchTerm] = useState("");
   const [companyFilter, setCompanyFilter] = useState("all");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const {
+const {
     data: users = [],
     isLoading,
     isError,
     refetch,
   } = useQuery<User[]>({
-    queryKey: ["users"],
-    queryFn: fetchUsers,
+    queryKey: ["users", deletedIds],
+    queryFn: () => fetchUsers(deletedIds),
     staleTime: 1000 * 60 * 5,
   });
 

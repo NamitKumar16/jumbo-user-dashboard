@@ -6,3 +6,8 @@ export const api = axios.create({
     Accept: "application/json",
   },
 });
+
+export const deleteUser = async (id: number) => {
+  await api.delete(`/users/${id}`);
+  return { id };
+};

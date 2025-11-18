@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import React, { useEffect, useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import * as Dialog from "@radix-ui/react-dialog";
 import type { User } from "@/types/user";
+import { useUserModalStore } from "@/store/useUserModalStore";
 
 type AddUserDialogProps = {
   onUserCreated?: (user: User) => void;
@@ -19,8 +20,29 @@ const labelStyles =
 const inputStyles =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100 dark:focus:border-indigo-400 dark:focus:ring-indigo-500/40";
 
+type CreateUserPayload = {
+  name: string;
+  email: string;
+  phone: string;
+  company: string;
+};
+
+type MutationVariables = CreateUserPayload & {
+  mode: "create" | "edit";
+  userId?: number;
+  previousUser?: User | null;
+};
+
 const AddUserDialog: React.FC<AddUserDialogProps> = ({ onClose }) => {
-  const [open, setOpen] = useState(false);
+  const queryClient = useQueryClient();
+  const {
+    isModalOpen,
+    isEditMode,
+    userBeingEdited,
+    openForCreate,
+    closeModal,
+    registerFormBridge,
+  } = useUserModalStore();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -33,56 +55,139 @@ const AddUserDialog: React.FC<AddUserDialogProps> = ({ onClose }) => {
     setCompany("");
   };
 
-  const mutation = useMutation({
-    mutationFn: async () => {
-      const response = await fetch(
-        "https://jsonplaceholder.typicode.com/users",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
+  const handleClose = () => {
+    closeModal();
+  };
+
+  useEffect(() => {
+    registerFormBridge({
+      setValues: (values) => {
+        setName(values.name);
+        setEmail(values.email);
+        setPhone(values.phone);
+        setCompany(values.company);
+      },
+      resetValues: resetForm,
+    });
+
+    return () => {
+      registerFormBridge(null);
+    };
+  }, [registerFormBridge]);
+
+  const mutation = useMutation<User, Error, MutationVariables>({
+    mutationFn: async ({
+      mode,
+      userId,
+      previousUser,
+      name: payloadName,
+      email: payloadEmail,
+      phone: payloadPhone,
+      company: payloadCompany,
+    }) => {
+      const endpoint =
+        mode === "edit" && userId
+          ? `https://jsonplaceholder.typicode.com/users/${userId}`
+          : "https://jsonplaceholder.typicode.com/users";
+
+      const response = await fetch(endpoint, {
+        method: mode === "edit" ? "PUT" : "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: payloadName,
+          email: payloadEmail,
+          phone: payloadPhone,
+          company: {
+            name: payloadCompany,
           },
-          body: JSON.stringify({
-            name,
-            email,
-            company: {
-              name: company,
-            },
-          }),
-        }
-      );
+        }),
+      });
 
       if (!response.ok) {
         throw new Error("Failed to save user");
       }
 
-      return response.json();
+      const data = await response.json();
+      const generatedId =
+        mode === "edit" && userId
+          ? userId
+          : typeof data.id === "number"
+          ? data.id
+          : Math.floor(Math.random() * 1e6);
+
+      const fallbackAddress = previousUser?.address ?? {
+        street: "",
+        city: "",
+        zipcode: "",
+      };
+
+      return {
+        id: generatedId,
+        name: payloadName,
+        email: payloadEmail,
+        phone: payloadPhone,
+        company: {
+          name: payloadCompany,
+        },
+        address: data.address ?? fallbackAddress,
+      };
     },
-    onSuccess: () => {
-      resetForm();
-      setOpen(false);
+    onSuccess: (newUser, variables) => {
+      queryClient.setQueryData<User[]>(["users"], (old = []) => {
+        if (variables.mode === "edit" && variables.userId) {
+          return old.map((user) =>
+            user.id === variables.userId ? newUser : user
+          );
+        }
+
+        const remaining = old.filter((user) => user.id !== newUser.id);
+        return [newUser, ...remaining];
+      });
+      handleClose();
       onClose?.();
     },
   });
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    mutation.mutate();
+    const basePayload = {
+      name,
+      email,
+      phone,
+      company,
+    };
+
+    if (isEditMode && userBeingEdited) {
+      mutation.mutate({
+        ...basePayload,
+        mode: "edit",
+        userId: userBeingEdited.id,
+        previousUser: userBeingEdited,
+      });
+      return;
+    }
+
+    mutation.mutate({
+      ...basePayload,
+      mode: "create",
+    });
   };
 
   return (
     <Dialog.Root
-      open={open}
+      open={isModalOpen}
       onOpenChange={(next) => {
-        setOpen(next);
         if (!next) {
-          resetForm();
+          handleClose();
         }
       }}
     >
       <Dialog.Trigger asChild>
         <button
           type="button"
+          onClick={openForCreate}
           className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 dark:bg-indigo-500 dark:hover:bg-indigo-400"
         >
           + Add User
@@ -93,10 +198,12 @@ const AddUserDialog: React.FC<AddUserDialogProps> = ({ onClose }) => {
         <Dialog.Overlay className={overlayStyles} />
         <Dialog.Content className={contentStyles}>
           <Dialog.Title className="text-lg font-semibold text-slate-900 dark:text-white">
-            Add a new user
+            {isEditMode ? "Edit user" : "Add a new user"}
           </Dialog.Title>
           <Dialog.Description className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-            Provide the basic details below. Functionality will be added later.
+            {isEditMode
+              ? "Update the fields below to modify this user."
+              : "Provide the basic details below. Functionality will be added later."}
           </Dialog.Description>
 
           <form
