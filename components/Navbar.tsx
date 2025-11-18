@@ -28,6 +28,7 @@ export default function Navbar() {
   const { darkMode, toggleDarkMode } = useThemeStore();
   const activityCount = useActivityStore((state) => state.activities.length);
   const toggleActivityLog = useActivityStore((state) => state.toggleOpen);
+  const isSidebarOpen = useActivityStore((state) => state.isOpen);
   const [isHydrated, setIsHydrated] = React.useState(false);
 
   React.useEffect(() => {
@@ -45,10 +46,31 @@ export default function Navbar() {
           type="button"
           onClick={toggleActivityLog}
           aria-label="Toggle activity log"
-          className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800 dark:focus-visible:ring-indigo-500/40"
+          className={`group relative inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-400 dark:focus-visible:ring-offset-gray-800 ${
+            isSidebarOpen
+              ? "border-indigo-400/80 bg-indigo-50 text-indigo-700 shadow-[0_5px_15px_rgba(99,102,241,0.25)] dark:border-indigo-500/60 dark:bg-indigo-500/15 dark:text-indigo-200"
+              : "border-slate-200 text-slate-700 hover:border-indigo-200 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+          }`}
         >
-          <ActivityIcon />
-          <span>Activity Log ({isHydrated ? activityCount : "–"})</span>
+          <span
+            className={`absolute -right-1.5 -top-1.5 h-2.5 w-2.5 rounded-full transition ${
+              isSidebarOpen
+                ? "bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.9)]"
+                : "bg-transparent"
+            }`}
+          />
+          <span
+            className={`rounded-full p-1 transition ${
+              isSidebarOpen
+                ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/30 dark:text-indigo-100"
+                : "bg-slate-100 text-slate-700 dark:bg-slate-700/70 dark:text-slate-200"
+            }`}
+          >
+            <ActivityIcon />
+          </span>
+          <span className="transition-transform duration-200 group-hover:scale-[1.02]">
+            Activity Log ({isHydrated ? activityCount : "–"})
+          </span>
         </button>
 
         {/* Dark Mode Toggle */}

@@ -118,7 +118,7 @@ const UserDetailsPage: React.FC = () => {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="rounded-xl border border-slate-100 bg-slate-50/80 p-4 dark:border-slate-800 dark:bg-slate-800/40">
+          <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-800">
             <p className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">
               Email
             </p>
@@ -129,7 +129,7 @@ const UserDetailsPage: React.FC = () => {
               {user.email}
             </a>
           </div>
-          <div className="rounded-xl border border-slate-100 bg-slate-50/80 p-4 dark:border-slate-800 dark:bg-slate-800/40">
+          <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-800">
             <p className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">
               Phone
             </p>
@@ -140,7 +140,7 @@ const UserDetailsPage: React.FC = () => {
               {user.phone}
             </a>
           </div>
-          <div className="rounded-xl border border-slate-100 bg-slate-50/80 p-4 dark:border-slate-800 dark:bg-slate-800/40">
+          <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-800">
             <p className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">
               Company
             </p>
@@ -148,7 +148,7 @@ const UserDetailsPage: React.FC = () => {
               {user.company?.name ?? "N/A"}
             </p>
           </div>
-          <div className="rounded-xl border border-slate-100 bg-slate-50/80 p-4 dark:border-slate-800 dark:bg-slate-800/40">
+          <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-800">
             <p className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">
               Address
             </p>
@@ -164,7 +164,7 @@ const UserDetailsPage: React.FC = () => {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-8 dark:bg-slate-950 sm:px-6 lg:px-10 lg:py-12">
+    <main className="min-h-screen bg-white px-4 py-8 dark:bg-gray-900 sm:px-6 lg:px-10 lg:py-12">
       <div className="mx-auto w-full max-w-4xl space-y-4">
         <button
           type="button"

@@ -1,38 +1,29 @@
-"use client";
-
 import "./globals.css";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useThemeStore } from "@/store/useThemeStore";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import Navbar from "@/components/Navbar";
 import ActivityLogSidebar from "@/components/ActivityLogSidebar";
-
-const queryClient = new QueryClient();
+import Providers from "@/components/Providers";
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const darkMode = useThemeStore((state) => state.darkMode);
-
   return (
-    <html lang="en" className={darkMode ? "dark" : ""}>
-      <body className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors">
-        <QueryClientProvider client={queryClient}>
-          <Navbar />
-          <div className="p-6">
-            <div className="mx-auto max-w-7xl">
-              <div className="flex gap-6">
-                <main className="flex-1">{children}</main>
-                <ActivityLogSidebar />
+    <html lang="en" suppressHydrationWarning>
+      <body>
+        <Providers>
+          <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100 transition-colors">
+            <Navbar />
+            <div className="px-4 py-6 sm:px-6 lg:px-10">
+              <div className="mx-auto max-w-7xl">
+                <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
+                  <main className="flex-1">{children}</main>
+                  <ActivityLogSidebar />
+                </div>
               </div>
             </div>
           </div>
-
-          {/* Remove this in production */}
-          <ReactQueryDevtools initialIsOpen={false} />
-        </QueryClientProvider>
+        </Providers>
       </body>
     </html>
   );

@@ -121,11 +121,11 @@ const ActivityLogSidebar: React.FC = () => {
 
   return (
     <>
-      <aside className="hidden h-fit min-h-[200px] w-full max-w-xs flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 md:flex">
+      <aside className="hidden h-fit min-h-[200px] w-full max-w-sm flex-col gap-4 self-start rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 lg:flex lg:sticky lg:top-6">
         {content}
       </aside>
 
-      <div className="fixed inset-x-0 bottom-0 z-40 block rounded-t-3xl border-t border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900 md:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-40 block rounded-t-3xl border-t border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900 lg:hidden">
         {content}
       </div>
     </>

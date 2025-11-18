@@ -18,10 +18,7 @@ export const useDeleteUser = () => {
     (state) => state.addDeletedUser
   );
   const deletedIds = useUserManagementStore((state) => state.deletedUserIds);
-  const usersQueryKey = React.useMemo(
-    () => ["users", deletedIds] as const,
-    [deletedIds]
-  );
+  const usersQueryKey = ["users", deletedIds] as const;
 
   return useMutation({
     mutationFn: async (id: number) => {
