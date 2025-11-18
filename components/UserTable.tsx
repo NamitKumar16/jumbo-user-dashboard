@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import * as Select from "@radix-ui/react-select";
+import AddUserDialog from "@/src/components/AddUserDialog";
 import UserRow from "@/components/UserRow";
 import type { User } from "@/types/user";
 import { api } from "@/lib/api";
@@ -220,8 +221,8 @@ const UserTable: React.FC = () => {
             Search, filter, and manage your users with live data.
           </p>
         </div>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-          <div className="flex w-full flex-col gap-1.5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:justify-end">
+          <div className="flex w-full flex-col gap-1.5 sm:w-64">
             <label
               htmlFor="user-search"
               className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400"
@@ -241,7 +242,7 @@ const UserTable: React.FC = () => {
               autoComplete="off"
             />
           </div>
-          <div className="flex w-full flex-col gap-1.5">
+          <div className="flex w-full flex-col gap-1.5 sm:max-w-xs">
             <span className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">
               Company
             </span>
@@ -302,7 +303,7 @@ const UserTable: React.FC = () => {
               </Select.Portal>
             </Select.Root>
           </div>
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1.5 sm:w-44">
             <span className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">
               Sort
             </span>
@@ -325,6 +326,9 @@ const UserTable: React.FC = () => {
                 {sortOrder === "asc" ? "A to Z" : "Z to A"}
               </span>
             </button>
+          </div>
+          <div className="flex w-full items-end justify-end sm:w-auto sm:self-end">
+            <AddUserDialog />
           </div>
         </div>
       </div>
