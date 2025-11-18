@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useThemeStore } from "@/store/useThemeStore";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import Navbar from "@/components/Navbar";
+import ActivityLogSidebar from "@/components/ActivityLogSidebar";
 
 const queryClient = new QueryClient();
 
@@ -20,7 +21,14 @@ export default function RootLayout({
       <body className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors">
         <QueryClientProvider client={queryClient}>
           <Navbar />
-          <div className="p-6">{children}</div>
+          <div className="p-6">
+            <div className="mx-auto max-w-7xl">
+              <div className="flex gap-6">
+                <main className="flex-1">{children}</main>
+                <ActivityLogSidebar />
+              </div>
+            </div>
+          </div>
 
           {/* Remove this in production */}
           <ReactQueryDevtools initialIsOpen={false} />

@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import * as Dialog from "@radix-ui/react-dialog";
 import type { User } from "@/types/user";
 import { useUserModalStore } from "@/store/useUserModalStore";
+import { addActivity } from "@/store/useActivityLog";
 
 type AddUserDialogProps = {
   onUserCreated?: (user: User) => void;
@@ -145,6 +146,43 @@ const AddUserDialog: React.FC<AddUserDialogProps> = ({ onClose }) => {
         const remaining = old.filter((user) => user.id !== newUser.id);
         return [newUser, ...remaining];
       });
+
+      if (variables.mode === "edit") {
+        const changedFields: string[] = [];
+        const previous = variables.previousUser;
+        if (previous) {
+          if (previous.name !== newUser.name) {
+            changedFields.push("name");
+          }
+          if (previous.email !== newUser.email) {
+            changedFields.push("email");
+          }
+          if (previous.phone !== newUser.phone) {
+            changedFields.push("phone");
+          }
+          if ((previous.company?.name ?? "") !== (newUser.company?.name ?? "")) {
+            changedFields.push("company");
+          }
+        }
+
+        addActivity({
+          type: "EDIT",
+          userId: newUser.id,
+          userName: newUser.name,
+          details:
+            changedFields.length > 0
+              ? `Updated fields: ${changedFields.join(", ")}`
+              : "Updated user via modal",
+        });
+      } else {
+        addActivity({
+          type: "ADD",
+          userId: newUser.id,
+          userName: newUser.name,
+          details: "Added user via modal",
+        });
+      }
+
       handleClose();
       onClose?.();
     },

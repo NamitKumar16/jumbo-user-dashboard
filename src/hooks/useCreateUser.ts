@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import type { User } from "@/types/user";
+import { addActivity } from "@/store/useActivityLog";
 
 const endpoint = "https://jsonplaceholder.typicode.com/users";
 
@@ -69,6 +70,13 @@ export const useCreateUser = () => {
           user.id === context?.temporaryId ? createdUser : user
         )
       );
+
+      addActivity({
+        type: "ADD",
+        userId: createdUser.id,
+        userName: createdUser.name,
+        details: "Added user via modal",
+      });
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });

@@ -1,20 +1,15 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import type { User } from "@/types/user";
+import { api } from "@/lib/api";
+import { addActivity } from "@/store/useActivityLog";
 
 const fetchUserById = async (id: string): Promise<User> => {
-  const response = await fetch(
-    `https://jsonplaceholder.typicode.com/users/${id}`
-  );
-
-  if (!response.ok) {
-    throw new Error("Unable to fetch user");
-  }
-
-  return response.json();
+  const response = await api.get<User>(`/users/${id}`);
+  return response.data;
 };
 
 const getInitials = (fullName: string): string => {
@@ -52,6 +47,19 @@ const UserDetailsPage: React.FC = () => {
     () => (user ? getInitials(user.name) : "?"),
     [user]
   );
+  const lastLoggedUser = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (user?.id && lastLoggedUser.current !== user.id) {
+      addActivity({
+        type: "VIEW",
+        userId: user.id,
+        userName: user.name,
+        details: "Viewed user detail page",
+      });
+      lastLoggedUser.current = user.id;
+    }
+  }, [user]);
 
   let content: React.ReactNode = null;
 
@@ -63,9 +71,11 @@ const UserDetailsPage: React.FC = () => {
     );
   } else if (isLoading) {
     content = (
-      <p className="text-sm text-slate-500 dark:text-slate-400">
-        Loading user details...
-      </p>
+      <div className="flex min-h-[200px] items-center justify-center">
+        <p className="text-sm text-slate-500 dark:text-slate-400">
+          Loading user details...
+        </p>
+      </div>
     );
   } else if (isError) {
     content = (

@@ -1,12 +1,15 @@
 "use client";
 
+import React from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { User } from "@/types/user";
 import { deleteUser as deleteUserRequest } from "@/lib/api";
 import { useUserManagementStore } from "@/store/useUserManagementStore";
+import { addActivity } from "@/store/useActivityLog";
 
 type Context = {
   previousUsers: User[];
+  deletedUser?: User;
 };
 
 export const useDeleteUser = () => {
@@ -14,31 +17,45 @@ export const useDeleteUser = () => {
   const addDeletedUser = useUserManagementStore(
     (state) => state.addDeletedUser
   );
+  const deletedIds = useUserManagementStore((state) => state.deletedUserIds);
+  const usersQueryKey = React.useMemo(
+    () => ["users", deletedIds] as const,
+    [deletedIds]
+  );
 
   return useMutation({
     mutationFn: async (id: number) => {
       return deleteUserRequest(id);
     },
     onMutate: async (id: number) => {
-      await queryClient.cancelQueries({ queryKey: ["users"] });
+      await queryClient.cancelQueries({ queryKey: usersQueryKey });
 
-      const previousUsers = queryClient.getQueryData<User[]>(["users"]) ?? [];
+      const previousUsers =
+        queryClient.getQueryData<User[]>(usersQueryKey) ?? [];
+      const deletedUser = previousUsers.find((user) => user.id === id);
 
-      queryClient.setQueryData<User[]>(["users"], (current = []) =>
+      queryClient.setQueryData<User[]>(usersQueryKey, (current = []) =>
         current.filter((user) => user.id !== id)
       );
 
       addDeletedUser(id);
 
-      return { previousUsers };
+      return { previousUsers, deletedUser };
     },
     onError: (_error, _id, context: Context | undefined) => {
       if (context?.previousUsers) {
-        queryClient.setQueryData<User[]>(["users"], context.previousUsers);
+        queryClient.setQueryData<User[]>(usersQueryKey, context.previousUsers);
       }
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["users"] });
+    onSuccess: (_result, _id, context) => {
+      if (context?.deletedUser) {
+        addActivity({
+          type: "DELETE",
+          userId: context.deletedUser.id,
+          userName: context.deletedUser.name,
+          details: "Deleted user via confirmation",
+        });
+      }
     },
   });
 };
