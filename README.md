@@ -124,7 +124,7 @@ src/
 ## 🛠️ How to Run Locally
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/NamitKumar16/jumbo-user-dashboard.git
 cd jumbo-user-dashboard
 
 npm install
