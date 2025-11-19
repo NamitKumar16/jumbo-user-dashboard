@@ -125,7 +125,7 @@ src/
 
 ```bash
 git clone <your-repo-url>
-cd user-management-dashboard
+cd jumbo-user-dashboard
 
 npm install
 npm run dev
