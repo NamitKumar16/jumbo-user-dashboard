@@ -1,7 +1,39 @@
 import "./globals.css";
+import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import ActivityLogSidebar from "@/components/ActivityLogSidebar";
 import Providers from "@/components/Providers";
+
+export const metadata: Metadata = {
+  title: "User Management Dashboard",
+  description:
+    "A modern internal dashboard built with Next.js, React Query, Radix UI, Zustand, and TailwindCSS.",
+  keywords: [
+    "user management",
+    "dashboard",
+    "internal tools",
+    "Next.js",
+    "React Query",
+    "Radix UI",
+    "Zustand",
+    "TailwindCSS",
+  ],
+  openGraph: {
+    title: "User Management Dashboard",
+    description:
+      "A modern internal dashboard built with Next.js, React Query, Radix UI, Zustand, and TailwindCSS.",
+    url: "https://jumbo-user-dashboard-btlxrw0zl-namitkumar16s-projects.vercel.app/",
+    siteName: "User Management Dashboard",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "User Management Dashboard",
+    description:
+      "A modern internal dashboard built with Next.js, React Query, Radix UI, Zustand, and TailwindCSS.",
+  },
+};
 
 export default function RootLayout({
   children,
