@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import type { QueryClient } from "@tanstack/react-query";
 import * as Select from "@radix-ui/react-select";
 import AddUserDialog from "@/src/components/AddUserDialog";
 import UserRow from "@/components/UserRow";
@@ -10,13 +11,21 @@ import { api } from "@/lib/api";
 import { useUserManagementStore } from "@/store/useUserManagementStore";
 
 const ITEMS_PER_PAGE = 5;
+const USERS_QUERY_KEY = ["users"] as const;
 
-const fetchUsers = async (deletedIds: number[]): Promise<User[]> => {
-  const res = await api.get("/users");
-  return res.data.filter((user: User) => !deletedIds.includes(user.id));
+const fetchUsers = async (queryClient: QueryClient): Promise<User[]> => {
+  const cached = queryClient.getQueryData<User[]>(USERS_QUERY_KEY);
+  if (cached) {
+    return cached;
+  }
+
+  const res = await api.get<User[]>("/users");
+  queryClient.setQueryData(USERS_QUERY_KEY, res.data);
+  return res.data;
 };
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0; // prevent Next.js from forcing refetches
 
 const ChevronDownIcon = ({
   className = "h-4 w-4",
@@ -80,21 +89,32 @@ const CheckIcon = ({
 
 const UserTable: React.FC = () => {
   const deletedIds = useUserManagementStore((state) => state.deletedUserIds);
+  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
   const [companyFilter, setCompanyFilter] = useState("all");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [currentPage, setCurrentPage] = useState(1);
 
-const {
-    data: users = [],
+  const {
+    data: cachedUsers = [],
     isLoading,
     isError,
     refetch,
   } = useQuery<User[]>({
-    queryKey: ["users", deletedIds],
-    queryFn: () => fetchUsers(deletedIds),
-    staleTime: 1000 * 60 * 5,
+    queryKey: USERS_QUERY_KEY,
+    queryFn: () => fetchUsers(queryClient),
+    staleTime: Infinity,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
+    gcTime: Infinity, // NEVER garbage-collect users list
+    enabled: true, // ensure query only runs once
   });
+
+  const users = useMemo(
+    () => cachedUsers.filter((user) => !deletedIds.includes(user.id)),
+    [cachedUsers, deletedIds]
+  );
 
   const companies = useMemo(() => {
     const names = users

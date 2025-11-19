@@ -34,6 +34,8 @@ type MutationVariables = CreateUserPayload & {
   previousUser?: User | null;
 };
 
+const USERS_QUERY_KEY = ["users"] as const;
+
 const AddUserDialog: React.FC<AddUserDialogProps> = ({ onClose }) => {
   const queryClient = useQueryClient();
   const {
@@ -80,63 +82,33 @@ const AddUserDialog: React.FC<AddUserDialogProps> = ({ onClose }) => {
     mutationFn: async ({
       mode,
       userId,
-      previousUser,
       name: payloadName,
       email: payloadEmail,
       phone: payloadPhone,
       company: payloadCompany,
     }) => {
-      const endpoint =
-        mode === "edit" && userId
-          ? `https://jsonplaceholder.typicode.com/users/${userId}`
-          : "https://jsonplaceholder.typicode.com/users";
+      // Fake request – keep the same UX (simulate network)
+      await new Promise((resolve) => setTimeout(resolve, 400));
 
-      const response = await fetch(endpoint, {
-        method: mode === "edit" ? "PUT" : "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: payloadName,
-          email: payloadEmail,
-          phone: payloadPhone,
-          company: {
-            name: payloadCompany,
-          },
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to save user");
-      }
-
-      const data = await response.json();
       const generatedId =
-        mode === "edit" && userId
-          ? userId
-          : typeof data.id === "number"
-          ? data.id
-          : Math.floor(Math.random() * 1e6);
-
-      const fallbackAddress = previousUser?.address ?? {
-        street: "",
-        city: "",
-        zipcode: "",
-      };
+        mode === "edit" && userId ? userId : Math.floor(Math.random() * 1e6);
 
       return {
         id: generatedId,
         name: payloadName,
         email: payloadEmail,
         phone: payloadPhone,
-        company: {
-          name: payloadCompany,
+        company: { name: payloadCompany },
+        address: {
+          street: "",
+          city: "",
+          zipcode: "",
         },
-        address: data.address ?? fallbackAddress,
       };
     },
+
     onSuccess: (newUser, variables) => {
-      queryClient.setQueryData<User[]>(["users"], (old = []) => {
+      queryClient.setQueryData<User[]>(USERS_QUERY_KEY, (old = []) => {
         if (variables.mode === "edit" && variables.userId) {
           return old.map((user) =>
             user.id === variables.userId ? newUser : user
@@ -147,39 +119,21 @@ const AddUserDialog: React.FC<AddUserDialogProps> = ({ onClose }) => {
         return [newUser, ...remaining];
       });
 
-      if (variables.mode === "edit") {
-        const changedFields: string[] = [];
-        const previous = variables.previousUser;
-        if (previous) {
-          if (previous.name !== newUser.name) {
-            changedFields.push("name");
-          }
-          if (previous.email !== newUser.email) {
-            changedFields.push("email");
-          }
-          if (previous.phone !== newUser.phone) {
-            changedFields.push("phone");
-          }
-          if ((previous.company?.name ?? "") !== (newUser.company?.name ?? "")) {
-            changedFields.push("company");
-          }
-        }
+      queryClient.invalidateQueries({ queryKey: USERS_QUERY_KEY });
 
+      if (variables.mode === "edit") {
         addActivity({
           type: "EDIT",
           userId: newUser.id,
           userName: newUser.name,
-          details:
-            changedFields.length > 0
-              ? `Updated fields: ${changedFields.join(", ")}`
-              : "Updated user via modal",
+          details: "User updated",
         });
       } else {
         addActivity({
           type: "ADD",
           userId: newUser.id,
           userName: newUser.name,
-          details: "Added user via modal",
+          details: "User added",
         });
       }
 

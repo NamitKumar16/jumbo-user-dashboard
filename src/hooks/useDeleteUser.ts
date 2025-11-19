@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { User } from "@/types/user";
 import { deleteUser as deleteUserRequest } from "@/lib/api";
@@ -17,8 +16,7 @@ export const useDeleteUser = () => {
   const addDeletedUser = useUserManagementStore(
     (state) => state.addDeletedUser
   );
-  const deletedIds = useUserManagementStore((state) => state.deletedUserIds);
-  const usersQueryKey = ["users", deletedIds] as const;
+  const usersQueryKey = ["users"] as const;
 
   return useMutation({
     mutationFn: async (id: number) => {
