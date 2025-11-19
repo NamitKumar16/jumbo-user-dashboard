@@ -1,36 +1,133 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# User Management Dashboard  
 
-## Getting Started
+A modern, fully-functional **User Management Dashboard** built using **Next.js, TypeScript, TailwindCSS, Radix UI, React Query, Zustand, and Axios**.  
+This dashboard allows you to view, search, filter, paginate, add, edit, delete, and inspect detailed information about users — designed like a clean internal tool.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🚀 Features
+
+### **1. User List (Table)**
+- Fetches users from `https://jsonplaceholder.typicode.com/users`
+- Displays avatar, name, email, phone, company, and actions
+- Search-as-you-type
+- Sort by email (A–Z / Z–A)
+- Filter by company (Radix Select)
+- Pagination (React Query–based)
+
+---
+
+### **2. Add User**
+- “Add User” opens a Radix Dialog (modal)
+- Fields: Name, Email, Phone, Company
+- Axios + React Query mutation (fake API)
+- Optimistic update: instantly reflects the new user
+- Activity Log entry recorded in Zustand
+
+---
+
+### **3. Edit User**
+- Edit button opens the same modal prefilled
+- Edit works with optimistic update
+- Updates table immediately
+- Activity Log entry recorded
+
+---
+
+### **4. Delete User**
+- Radix UI confirmation dialog
+- Optimistic deletion
+- Activity Log recorded
+- Persisted deletion list using Zustand
+
+---
+
+### **5. User Detail Page `/users/[id]`**
+Shows:
+- Avatar + user header  
+- Contact Information  
+- Company Details  
+- Address Details  
+- Breadcrumbs  
+- Modern card layout with full dark mode support  
+
+---
+
+### **6. Global State with Zustand**
+Stored:
+- Logged-in user
+- Dark mode toggle (Radix Switch)
+- Activity log (persisted)
+- Deleted user IDs
+
+Dark mode:
+- Fully synced with `<html class="dark">`
+- Smooth transitions enabled
+
+---
+
+## 🧱 Tech Stack
+
+| Layer | Technology |
+|------|------------|
+| Web Framework | **Next.js 14+ (App Router)** |
+| Language | **TypeScript** |
+| Styling | **TailwindCSS** |
+| UI Components | **Radix UI** |
+| Data Fetching | **TanStack React Query** |
+| State Management | **Zustand** |
+| HTTP Client | **Axios** |
+| Deployment | **Vercel** |
+
+---
+
+## 📂 Folder Structure (Simplified)
+```
+src/
+ ├─ app/
+ │   ├─ layout.tsx
+ │   ├─ page.tsx
+ │   └─ users/
+ │       ├─ page.tsx
+ │       └─ [id]/
+ │           └─ page.tsx
+ ├─ components/
+ │   ├─ UserRow.tsx
+ │   ├─ AddUserDialog.tsx
+ │   ├─ DeleteUserDialog.tsx
+ │   ├─ Navbar.tsx
+ │   └─ ActivityLogSidebar.tsx
+ ├─ store/
+ │   ├─ useThemeStore.ts
+ │   ├─ useUserManagementStore.ts
+ │   ├─ useActivityLog.ts
+ │   └─ useUserModalStore.ts
+ ├─ lib/
+ │   └─ api.ts
+ └─ types/
+     └─ user.ts
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🛠️ How to Run Locally
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+git clone <your-repo-url>
+cd user-management-dashboard
 
-## Learn More
+npm install
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+Then open:
+```
+http://localhost:3000
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## ⭐ Author
+**Namit Kumar**  
+React Native & Front-End Developer  
+Built for **Jumbo React Frontend Assignment**
