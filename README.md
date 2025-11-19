@@ -5,6 +5,17 @@ This dashboard allows you to view, search, filter, paginate, add, edit, delete, 
 
 ---
 
+## 🌍 Live Demo
+🔗 https://jumbo-user-dashboard.vercel.app/
+
+
+## 🎥 Loom Walkthrough Video
+(5–10 minute assignment walkthrough)
+
+🔗 https://www.loom.com/share/abc3bbfe44d74b32a0a48f32eaec5277
+
+---
+
 ## 🚀 Features
 
 ### **1. User List (Table)**
@@ -124,6 +135,18 @@ Then open:
 ```
 http://localhost:3000
 ```
+
+---
+
+## 🧠 What I Would Improve With More Time
+
+- Add real backend API instead of mock POST/PUT/DELETE
+- Add role-based authentication (Admin / Viewer)
+- Add unit tests and E2E tests (React Testing Library + Jest)
+- Implement server-side persistence for activity logs
+- Improve table performance with virtualization for large data sets
+- Add sorting and filtering for more fields (phone, name, company)
+- Add bulk actions (bulk delete, bulk edit)
 
 ---
 
